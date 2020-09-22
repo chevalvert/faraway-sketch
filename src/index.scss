@@ -1,0 +1,22 @@
+@import 'sass/reset';
+@import 'sass/helpers';
+
+$black: #000000;
+$white: #FFFFFF;
+
+@import 'sass/base';
+
+body {
+  background: #333;
+}
+
+main {
+  height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+main canvas {
+  background: white;
+  box-shadow: 0 0 100px rgba(0, 0, 0, 0.2);
+}
