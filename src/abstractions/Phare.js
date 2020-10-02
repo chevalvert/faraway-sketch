@@ -1,6 +1,7 @@
 import intersect from 'segseg'
 import { radians, random } from 'missing-math'
 import dist from 'utils/distance'
+import Colors from 'controllers/colors'
 
 export default class Phare {
   constructor ([x, y], radius = 100) {
@@ -50,7 +51,7 @@ export default class Phare {
     if (window.ENV.showGuides) {
       ctx.save()
       ctx.setLineDash([5, 10])
-      ctx.strokeStyle = this.isActive ? '#ff44ff' : '#4b96ff'
+      ctx.strokeStyle = this.isActive ? Colors()['radius-active'] : Colors().radius
       ctx.lineWidth = 1
       ctx.beginPath()
       ctx.arc(...this.position, this.radius, 0, Math.PI * 2)
@@ -58,7 +59,7 @@ export default class Phare {
       ctx.restore()
     }
 
-    ctx.strokeStyle = this.isActive ? '#9a1fff' : '#4b96ff'
+    ctx.strokeStyle = this.isActive ? Colors()['arm-active'] : Colors().arm
     ctx.fillStyle = ctx.strokeStyle
     ctx.lineCap = 'round'
     ctx.lineWidth = 4

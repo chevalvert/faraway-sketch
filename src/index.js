@@ -2,6 +2,7 @@ import { random } from 'missing-math'
 import hotkeys from 'hotkeys-js'
 import raf from '@internet/raf'
 
+import Colors from 'controllers/colors'
 import Phare from 'abstractions/Phare'
 
 const RADIUS = 100
@@ -14,6 +15,14 @@ canvas.style.width = canvas.width + 'px'
 canvas.style.height = canvas.height + 'px'
 
 const phares = []
+// Populate w/ 30 phares
+for (let i = 0; i < 30; i++) {
+  const radius = random(RADIUS * 0.5, RADIUS * 1.5)
+  const x = random(radius, canvas.width - radius)
+  const y = random(radius, canvas.height - radius)
+  phares.push(new Phare([x, y], radius))
+}
+
 canvas.addEventListener('click', e => {
   const position = [e.offsetX, e.offsetY]
   const active = phares.find(phare => phare.isUnder(position))
@@ -23,6 +32,7 @@ canvas.addEventListener('click', e => {
 })
 
 raf.add(dt => {
+  canvas.style['background-color'] = Colors().background
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   phares.forEach(phare => phare.update())
   phares.forEach(phare => {
@@ -34,15 +44,15 @@ raf.add(dt => {
 })
 
 hotkeys('w', () => {
-  window.ENV.showGuides = !window.ENV.showGuides
+  window.ENV.production = !window.ENV.production
 })
 
-hotkeys('space', e => {
-  e.preventDefault()
-  for (let i = 0; i < 10; i++) {
-    const radius = random(RADIUS * 0.5, RADIUS * 1.5)
-    const x = random(radius, canvas.width - radius)
-    const y = random(radius, canvas.height - radius)
-    phares.push(new Phare([x, y], radius))
-  }
-})
+// hotkeys('space', e => {
+//   e.preventDefault()
+//   for (let i = 0; i < 10; i++) {
+//     const radius = random(RADIUS * 0.5, RADIUS * 1.5)
+//     const x = random(radius, canvas.width - radius)
+//     const y = random(radius, canvas.height - radius)
+//     phares.push(new Phare([x, y], radius))
+//   }
+// })
