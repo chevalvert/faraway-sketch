@@ -15,12 +15,11 @@ canvas.style.width = canvas.width + 'px'
 canvas.style.height = canvas.height + 'px'
 
 const phares = []
-// Populate w/ 30 phares
-for (let i = 0; i < 30; i++) {
-  const radius = random(RADIUS * 0.5, RADIUS * 1.5)
-  const x = random(radius, canvas.width - radius)
-  const y = random(radius, canvas.height - radius)
-  phares.push(new Phare([x, y], radius))
+// Populate w/ 20 phares
+for (let i = 0; i < 20; i++) {
+  const x = random(RADIUS, canvas.width - RADIUS)
+  const y = random(RADIUS, canvas.height - RADIUS)
+  phares.push(new Phare([x, y], RADIUS))
 }
 
 canvas.addEventListener('click', e => {
