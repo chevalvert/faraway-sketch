@@ -1,8 +1,15 @@
-export default () => ({
-  background: window.ENV.production ? 'black' : 'white',
-  radius: window.ENV.production ? 'transparent' : '#4b96ff',
-  'radius-active': window.ENV.production ? 'transparent' : '#ff44ff',
-
-  arm: window.ENV.production ? 'rgba(255, 255, 255, 0.3)' : '#9a1fff',
-  'arm-active': window.ENV.production ? 'white' : '#4b96ff'
-})
+export default () => window.ENV.production
+  ? {
+    background: 'black',
+    radius: 'transparent',
+    'radius-active': 'transparent',
+    arm: 'rgba(255, 255, 255, 0.3)',
+    'arm-active': 'white'
+  }
+  : {
+    background: 'white',
+    radius: '#4b96ff',
+    'radius-active': '#ff44ff',
+    arm: '#9a1fff',
+    'arm-active': '#4b96ff'
+  }
