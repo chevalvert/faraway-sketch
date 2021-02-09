@@ -20,6 +20,15 @@ module.exports = {
         test: /\.(js)$/,
         loader: 'babel-loader',
         include: paths.src
+      },
+      {
+        test: /\.(csv)$/,
+        loader: 'csv-loader',
+        options: {
+          dynamicTyping: true,
+          header: true,
+          skipEmptyLines: true
+        }
       }
     ]
   },

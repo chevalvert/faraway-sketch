@@ -7,7 +7,7 @@ $white: #FFFFFF;
 @import 'sass/base';
 
 body {
-  background: #333;
+  background: black;
 }
 
 main {
@@ -17,6 +17,6 @@ main {
 }
 
 main canvas {
-  background: white;
+  // background: white;
   box-shadow: 0 0 100px rgba(0, 0, 0, 0.2);
 }

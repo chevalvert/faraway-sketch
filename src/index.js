@@ -1,57 +1,51 @@
-import { random } from 'missing-math'
 import hotkeys from 'hotkeys-js'
 import raf from '@internet/raf'
+import Scene from 'abstractions/Scene'
+import points from './points.csv'
 
-import Colors from 'controllers/colors'
-import Phare from 'abstractions/Phare'
+window.store = {
+  debug: false,
 
-const RADIUS = 100
-const canvas = document.querySelector('canvas')
-const ctx = canvas.getContext('2d')
+  scene: {
+    color: '#222',
+    padding: 100 // px
+  },
 
-canvas.width = window.innerWidth - 25
-canvas.height = window.innerHeight - 25
-canvas.style.width = canvas.width + 'px'
-canvas.style.height = canvas.height + 'px'
+  phare: {
+    // TODO: awakeDuration & disabledDuration
+    duration: 4 * 1000, // ms
+    base: {
+      color: 'rgba(0, 0, 0, 0.2)',
+      radius: 800 / 2 // mm
+    },
 
-const phares = []
-// Populate w/ 20 phares
-for (let i = 0; i < 20; i++) {
-  const x = random(RADIUS, canvas.width - RADIUS)
-  const y = random(RADIUS, canvas.height - RADIUS)
-  phares.push(new Phare([x, y], RADIUS))
+    led: {
+      length: 1700 // mm
+    },
+
+    arm: {
+      color: '#000',
+      length: 3000, // mm
+      offset: -500, // mm
+      thickness: 80 // mm
+    }
+  }
 }
 
-canvas.addEventListener('click', e => {
-  const position = [e.offsetX, e.offsetY]
-  const active = phares.find(phare => phare.isUnder(position))
-
-  if (active) active.trigger(true)
-  else phares.push(new Phare(position))
-})
+const canvas = document.querySelector('canvas')
+window.scene = new Scene(canvas, points.map(({x, y}) => ([x, -y])))
 
 raf.add(dt => {
-  canvas.style['background-color'] = Colors().background
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-  phares.forEach(phare => phare.update())
-  phares.forEach(phare => {
-    phares.forEach(candidate => {
-      phare.hit(candidate) && candidate.trigger()
-    })
-    phare.render(ctx)
-  })
+  try {
+    window.scene.update(dt)
+  } catch (error) {
+    console.error(error)
+    raf.stop()
+  }
 })
 
 hotkeys('w', () => {
-  window.ENV.production = !window.ENV.production
+  window.store.debug = !window.store.debug
 })
 
-// hotkeys('space', e => {
-//   e.preventDefault()
-//   for (let i = 0; i < 10; i++) {
-//     const radius = random(RADIUS * 0.5, RADIUS * 1.5)
-//     const x = random(radius, canvas.width - radius)
-//     const y = random(radius, canvas.height - radius)
-//     phares.push(new Phare([x, y], radius))
-//   }
-// })
+hotkeys('r', () => window.scene.clear())
