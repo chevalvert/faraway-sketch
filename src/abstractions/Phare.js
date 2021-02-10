@@ -141,7 +141,7 @@ export default class Phare {
         const t = clamp(this.ellapsedTime / 1000, 0, 1)
         return {
           rgba: [255, 255, 255, t],
-          bounds: [0, t]
+          bounds: [1 - t, 1]
         }
       }
     }
