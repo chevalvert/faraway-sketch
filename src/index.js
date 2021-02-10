@@ -12,6 +12,8 @@ window.store = {
   },
 
   phare: {
+    displayLights: true,
+
     duration: {
       awake: 4 * 1000, // ms
       disabled: 2 * 1000, // ms
@@ -48,8 +50,6 @@ raf.add(dt => {
   }
 })
 
-hotkeys('w', () => {
-  window.store.debug = !window.store.debug
-})
-
+hotkeys('w', () => { window.store.debug = !window.store.debug })
+hotkeys('l', () => { window.store.phare.displayLights = !window.store.phare.displayLights })
 hotkeys('r', () => window.scene.clear())

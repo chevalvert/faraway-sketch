@@ -1,17 +1,7 @@
 import intersect from 'segseg'
 import { degrees, radians, random, lerp, clamp } from 'missing-math'
 import dist from 'utils/distance'
-
-function fallOff (render, { passes = 5, initialIntensity = 1, initialDensity = 1 } = {}) {
-  for (let i = 0; i < passes; i++) {
-    const n = i / passes
-    const intensity = i ? lerp(initialIntensity * 0.1, 0, 1 - n ** 2) : initialIntensity
-    const density = initialDensity * (i ? (100 - (n ** 1.3) * 100) : 3)
-    if (intensity < 0.0001) break
-
-    render({ intensity, density })
-  }
-}
+import fallOff from 'utils/simulate-falloff'
 
 export default class Phare {
   constructor (x, y) {
@@ -76,7 +66,7 @@ export default class Phare {
 
   render (ctx, scale) {
     ctx.lineCap = 'round'
-    const { base, arm, led } = window.store.phare
+    const { base, arm, led, displayLights } = window.store.phare
 
     ctx.save()
     ctx.translate(this.position[0], this.position[1])
@@ -88,7 +78,7 @@ export default class Phare {
     ctx.arc(0, 0, base.radius, 0, Math.PI * 2)
     ctx.fill()
 
-    { // Render light
+    if (displayLights) { // Render light
       const light = this.computeLight()
       const a = (arm.length + arm.offset) - led.length
       const b = (arm.length + arm.offset)
@@ -116,7 +106,7 @@ export default class Phare {
     ctx.stroke()
 
     // Render back light
-    fallOff(({ intensity, density }) => {
+    displayLights && fallOff(({ intensity, density }) => {
       ctx.fillStyle = `rgba(255, 0, 0, ${intensity})`
       ctx.beginPath()
       ctx.arc(arm.offset, 0, density, 0, Math.PI * 2)
