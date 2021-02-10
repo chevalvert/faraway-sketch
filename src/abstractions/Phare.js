@@ -156,7 +156,13 @@ export default class Phare {
   }
 
   debugGeometry (ctx, scale) {
-    ctx.strokeStyle = 'white'
+    switch (this.state) {
+      default:
+      case 'disabled': ctx.strokeStyle = 'rgba(255, 0, 0, 0.2)'; break
+      case 'iddle': ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'; break
+      case 'awake': ctx.strokeStyle = 'rgba(255, 255, 255, 1)'; break
+    }
+
     ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'
     ctx.lineWidth = 1 / scale
 
