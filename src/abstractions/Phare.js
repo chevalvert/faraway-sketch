@@ -19,7 +19,7 @@ export default class Phare {
     this.radius = window.store.phare.arm.length + window.store.phare.arm.offset
 
     this.alpha = random(0, 360)
-    this.ellapsedTime = 99999
+    this.ellapsedTime = random(window.store.phare.duration.disabled, window.store.phare.duration.reseek)
   }
 
   get state () {
@@ -43,10 +43,12 @@ export default class Phare {
   }
 
   update (dt) {
-    this.ellapsedTime += dt
+    if (this.ellapsedTime < 0) return
 
-    // WIP
-    if (this.ellapsedTime > window.store.phare.duration.awake * random(10, 50)) this.trigger(true)
+    const { reseek, awake, disabled } = window.store.phare.duration
+
+    this.ellapsedTime += dt
+    if (this.ellapsedTime > awake + disabled + reseek) this.trigger(true)
 
     if (this.state !== 'awake') return
 

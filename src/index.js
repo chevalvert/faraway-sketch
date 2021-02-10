@@ -14,7 +14,8 @@ window.store = {
   phare: {
     duration: {
       awake: 4 * 1000, // ms
-      disabled: 2 * 1000 // ms
+      disabled: 2 * 1000, // ms
+      reseek: 60 * 1000 // ms
     },
 
     base: {
