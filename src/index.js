@@ -12,8 +12,11 @@ window.store = {
   },
 
   phare: {
-    // TODO: awakeDuration & disabledDuration
-    duration: 4 * 1000, // ms
+    duration: {
+      awake: 4 * 1000, // ms
+      disabled: 2 * 1000 // ms
+    },
+
     base: {
       color: 'rgba(0, 0, 0, 0.2)',
       radius: 800 / 2 // mm

@@ -23,8 +23,8 @@ export default class Phare {
   }
 
   get state () {
-    if (this.ellapsedTime < window.store.phare.duration) return 'awake'
-    if (this.ellapsedTime < window.store.phare.duration * 2) return 'disabled'
+    if (this.ellapsedTime < window.store.phare.duration.awake) return 'awake'
+    if (this.ellapsedTime < window.store.phare.duration.awake + window.store.phare.duration.disabled) return 'disabled'
     return 'iddle'
   }
 
@@ -46,11 +46,11 @@ export default class Phare {
     this.ellapsedTime += dt
 
     // WIP
-    if (this.ellapsedTime > window.store.phare.duration * random(10, 50)) this.trigger(true)
+    if (this.ellapsedTime > window.store.phare.duration.awake * random(10, 50)) this.trigger(true)
 
     if (this.state !== 'awake') return
 
-    const brake = 1 - (this.ellapsedTime / window.store.phare.duration) ** 2
+    const brake = 1 - (this.ellapsedTime / window.store.phare.duration.awake) ** 2
 
     // SEE https://github.com/Hemisphere-Project/FarAway/blob/master/Simulation/Acceleration_theorique_FarAway/Acceleration_theorique_FarAway.pde
     const J = 2.73
