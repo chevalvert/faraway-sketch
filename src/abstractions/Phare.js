@@ -1,3 +1,4 @@
+/* global Audio */
 import intersect from 'segseg'
 import { degrees, radians, random, lerp, clamp } from 'missing-math'
 import dist from 'utils/distance'
@@ -9,18 +10,33 @@ export default class Phare {
     this.radius = window.store.phare.arm.length + window.store.phare.arm.offset
 
     this.alpha = random(0, 360)
-    this.ellapsedTime = random(window.store.phare.duration.disabled, window.store.phare.duration.reseek)
+    this.state = 'iddle'
+    this.direction = Math.sign(random(-1, 1))
+    this.sound = new Audio('ding.wav')
   }
 
-  get state () {
-    if (this.ellapsedTime < window.store.phare.duration.awake) return 'awake'
-    if (this.ellapsedTime < window.store.phare.duration.awake + window.store.phare.duration.disabled) return 'disabled'
-    return 'iddle'
+  get state () { return this._state }
+  set state (s) {
+    this.stateTime = 0
+    this._state = s
   }
 
-  get ray () {
+  get body () {
     return [
       this.position,
+      [
+        this.position[0] + Math.cos(radians(this.alpha)) * this.radius,
+        this.position[1] + Math.sin(radians(this.alpha)) * this.radius
+      ]
+    ]
+  }
+
+  get sensor () {
+    return [
+      [
+        this.position[0] + Math.cos(radians(this.alpha)) * this.radius * 0.9,
+        this.position[1] + Math.sin(radians(this.alpha)) * this.radius * 0.9
+      ],
       [
         this.position[0] + Math.cos(radians(this.alpha)) * this.radius,
         this.position[1] + Math.sin(radians(this.alpha)) * this.radius
@@ -33,35 +49,50 @@ export default class Phare {
   }
 
   update (dt) {
-    if (this.ellapsedTime < 0) return
+    this.stateTime += dt
 
-    const { reseek, awake, disabled } = window.store.phare.duration
+    switch (this.state) {
+      case 'iddle': {
+        this.alpha += this.direction * 0.1
+        break
+      }
 
-    this.ellapsedTime += dt
-    if (this.ellapsedTime > awake + disabled + reseek) this.trigger(true)
+      case 'awake': {
+        if (this.stateTime > window.store.phare.duration.awake) {
+          this.state = 'iddle'
+          this.direction = -this.direction
+          break
+        }
 
-    if (this.state !== 'awake') return
+        const brake = 1 - (this.stateTime / window.store.phare.duration.awake) ** 2
 
-    const brake = 1 - (this.ellapsedTime / window.store.phare.duration.awake) ** 2
+        // SEE https://github.com/Hemisphere-Project/FarAway/blob/master/Simulation/Acceleration_theorique_FarAway/Acceleration_theorique_FarAway.pde
+        const J = 2.73
+        const K1 = 4.5 / (J * 2)
+        const pt = this.stateTime - dt
+        const t = this.stateTime
 
-    // SEE https://github.com/Hemisphere-Project/FarAway/blob/master/Simulation/Acceleration_theorique_FarAway/Acceleration_theorique_FarAway.pde
-    const J = 2.73
-    const K1 = 4.5 / (J * 2)
-    const pt = this.ellapsedTime - dt
-    const t = this.ellapsedTime
-
-    const step = degrees(K1 * pt * pt / 1000000) - degrees(K1 * t * t / 1000000)
-    this.alpha += step * brake
+        const step = degrees(K1 * pt * pt / 1000000) - degrees(K1 * t * t / 1000000)
+        this.alpha += step * brake * -this.direction
+        break
+      }
+    }
   }
 
   trigger (force = false) {
-    if (!force && this.state !== 'iddle') return
-    this.ellapsedTime = 0
+    this.sound.play()
+
+    // XXX: Toggle multiple trigger in one awake session
+    if (!force && this.state === 'awake') return
+    // if (!force && this.state === 'awake' && this.stateTime < 500) return
+
+    this.sound.currentTime = 0
+    this.state = 'awake'
   }
 
   hit (phare) {
     if (phare === this) return
-    return intersect([], ...this.ray, ...phare.ray)
+    return intersect([], ...this.body, ...phare.sensor)
   }
 
   render (ctx, scale) {
@@ -90,6 +121,16 @@ export default class Phare {
         ctx.moveTo(lerp(a, b, light.bounds[0]), 0)
         ctx.lineTo(lerp(a, b, light.bounds[1]), 0)
         ctx.stroke()
+
+        // HACK: Blink a white LED when iddle
+        if (this.state === 'iddle') {
+          const t = (Math.sin(this.stateTime / 500) + 1) / 2
+          ctx.beginPath()
+          ctx.strokeStyle = `rgba(255, 255, 255, ${intensity * 2 * t})`
+          ctx.moveTo(b, 0)
+          ctx.lineTo(b, 0)
+          ctx.stroke()
+        }
       }, {
         initialIntensity: light.rgba[3],
         initialDensity: Math.max(1 / scale, arm.thickness),
@@ -112,9 +153,9 @@ export default class Phare {
       ctx.arc(arm.offset, 0, density, 0, Math.PI * 2)
       ctx.fill()
     }, {
-      passes: 6,
-      initialIntensity: 0.3,
-      initialDensity: arm.thickness
+      passes: 3,
+      initialIntensity: 0.2,
+      initialDensity: arm.thickness / 2
     })
 
     ctx.restore()
@@ -122,26 +163,20 @@ export default class Phare {
 
   computeLight () {
     switch (this.state) {
-      default:
-      case 'disabled': {
+      case 'iddle': {
+        const t = clamp((this.stateTime / 1000) * 2, 0, 1)
         return {
-          rgba: [255, 0, 0, 0.2],
+          rgba: [255, 0, 0, t * 0.3],
           bounds: [0, 1]
         }
       }
 
-      case 'iddle': {
-        return {
-          rgba: [255, 255, 255, Math.sin(this.alpha + this.ellapsedTime / 1000) * 0.3],
-          bounds: [0.9, 1]
-        }
-      }
-
       case 'awake': {
-        const t = clamp(this.ellapsedTime / 1000, 0, 1)
+        const t1 = clamp(this.stateTime / 50, 0, 1)
+        const t2 = (1 - (this.stateTime / window.store.phare.duration.awake) ** 3)
         return {
-          rgba: [255, 255, 255, t],
-          bounds: [1 - t, 1]
+          rgba: [255, 255, 255, t2],
+          bounds: [1 - t1, 1]
         }
       }
     }
@@ -150,7 +185,6 @@ export default class Phare {
   debugGeometry (ctx, scale) {
     switch (this.state) {
       default:
-      case 'disabled': ctx.strokeStyle = 'rgba(255, 0, 0, 0.2)'; break
       case 'iddle': ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'; break
       case 'awake': ctx.strokeStyle = 'rgba(255, 255, 255, 1)'; break
     }
@@ -166,8 +200,9 @@ export default class Phare {
 
     // Ray
     ctx.beginPath()
-    ctx.moveTo(this.ray[0][0], this.ray[0][1])
-    ctx.lineTo(this.ray[1][0], this.ray[1][1])
+    ctx.strokeStyle = 'cyan'
+    ctx.moveTo(this.sensor[0][0], this.sensor[0][1])
+    ctx.lineTo(this.sensor[1][0], this.sensor[1][1])
     ctx.stroke()
   }
 }

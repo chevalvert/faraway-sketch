@@ -20,3 +20,12 @@ main canvas {
   // background: white;
   box-shadow: 0 0 100px rgba(0, 0, 0, 0.2);
 }
+
+#clickToStart {
+  color: white;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: monospace;
+}
