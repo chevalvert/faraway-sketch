@@ -13,6 +13,8 @@ export default class Phare {
     this.state = 'iddle'
     this.direction = Math.sign(random(-1, 1))
     this.sound = new Audio('ding.wav')
+
+    this.seed = Math.random() * 9999
   }
 
   get state () { return this._state }
@@ -124,7 +126,7 @@ export default class Phare {
 
         // HACK: Blink a white LED when iddle
         if (this.state === 'iddle') {
-          const t = (Math.sin(this.stateTime / 500) + 1) / 2
+          const t = (Math.sin(this.seed + this.stateTime / 500) + 1) / 2
           ctx.beginPath()
           ctx.strokeStyle = `rgba(255, 255, 255, ${intensity * 2 * t})`
           ctx.moveTo(b, 0)
