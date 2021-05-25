@@ -1,6 +1,6 @@
 /* global Audio */
 import intersect from 'segseg'
-import { degrees, radians, random, lerp, clamp } from 'missing-math'
+import { degrees, radians, random, randomInt, lerp, clamp } from 'missing-math'
 import dist from 'utils/distance'
 import fallOff from 'utils/simulate-falloff'
 
@@ -12,7 +12,9 @@ export default class Phare {
     this.alpha = random(0, 360)
     this.state = 'iddle'
     this.direction = Math.sign(random(-1, 1))
-    this.sound = new Audio('ding.wav')
+
+    const i = randomInt(4, 7)
+    this.sound = new Audio(`FA-S${i}-20210525v2.wav`)
 
     this.seed = Math.random() * 9999
   }
