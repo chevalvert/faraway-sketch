@@ -53,7 +53,7 @@
     "ghp": "^1.6.0",
     "handlebars": "^4.0.10",
     "kool-shell": "^1.5.0",
-    "node-sass": "^4.5.3",
+    "node-sass": "^4.13.1",
     "postcss-loader": "^2.0.6",
     "progress-bar-webpack-plugin": "^1.10.0",
     "prop-types": "^15.6.0",
