@@ -11,7 +11,7 @@ window.addEventListener('click', () => {
 
     scene: {
       color: '#333',
-      padding: 100 // px
+      padding: 200 // px
     },
 
     phare: {
